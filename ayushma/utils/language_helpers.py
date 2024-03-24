@@ -17,7 +17,7 @@ def translate_text(target, text):
         return result["translatedText"]
     except Exception as e:
         print(e)
-        raise APIException("Translation failed")
+        raise APIException(f"Translation failed: {e}")
 
 
 language_code_voice_map = {
@@ -55,7 +55,8 @@ def text_to_speech(text, language_code, service):
             synthesis_input = texttospeech.SynthesisInput(text=text)
 
             voice = texttospeech.VoiceSelectionParams(
-                language_code=language_code, name=language_code_voice_map[language_code]
+                language_code=language_code,
+                name=language_code_voice_map[language_code],
             )
             audio_config = texttospeech.AudioConfig(
                 audio_encoding=texttospeech.AudioEncoding.MP3
@@ -77,7 +78,7 @@ def text_to_speech(text, language_code, service):
             )
             return response.read()
         else:
-            raise APIException("Service not supported")
+            raise APIException("Text-to-speech: service not supported.")
     except Exception as e:
         print(e)
-        return None
+        raise APIException(f"Text-to-speech failed: {e}")
