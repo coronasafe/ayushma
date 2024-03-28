@@ -14,15 +14,18 @@ class WhisperEngine:
         self.language_code = language_code
 
     def recognize(self, audio):
-        client = OpenAI(api_key=self.api_key)
-        transcription = client.audio.transcriptions.create(
-            model="whisper-1",
-            # https://github.com/openai/openai-python/tree/main#file-uploads
-            file=(audio.name, audio.read()),
-            language=self.language_code.replace("-IN", ""),
-            # api_version="2020-11-07",
-        )
-        return transcription.text
+        try:
+            client = OpenAI(api_key=self.api_key)
+            transcription = client.audio.transcriptions.create(
+                model="whisper-1",
+                # https://github.com/openai/openai-python/tree/main#file-uploads
+                file=(audio.name, audio.read()),
+                language=self.language_code.replace("-IN", ""),
+                # api_version="2020-11-07",
+            )
+            return transcription.text
+        except Exception as e:
+            raise ValueError(f"Failed to recognize speech with whisper engine: {e}")
 
 
 class GoogleEngine:
@@ -31,19 +34,22 @@ class GoogleEngine:
         self.language_code = language_code
 
     def recognize(self, audio):
-        client = speech.SpeechClient()
-        audio_content = audio.file.read()
-        audio_data = speech.RecognitionAudio(content=audio_content)
+        try:
+            client = speech.SpeechClient()
+            audio_content = audio.file.read()
+            audio_data = speech.RecognitionAudio(content=audio_content)
 
-        config = speech.RecognitionConfig(
-            encoding=speech.RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED,
-            language_code=self.language_code,
-        )
+            config = speech.RecognitionConfig(
+                encoding=speech.RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED,
+                language_code=self.language_code,
+            )
 
-        response = client.recognize(config=config, audio=audio_data)
-        if not response.results:
-            return ""
-        return response.results[0].alternatives[0].transcript
+            response = client.recognize(config=config, audio=audio_data)
+            if not response.results:
+                return ""
+            return response.results[0].alternatives[0].transcript
+        except Exception as e:
+            raise ValueError(f"Failed to recognize speech with google engine: {e}")
 
 
 class SelfHostedEngine:
@@ -51,21 +57,24 @@ class SelfHostedEngine:
         self.language_code = language_code
 
     def recognize(self, audio):
-        response = requests.post(
-            settings.SELF_HOSTED_ENDPOINT,
-            files={"audio": audio},
-            data={
-                # change this model to get faster results see: https://github.com/coronasafe/care-whisper
-                "model": "small",
-                "language": self.language_code.replace("-IN", ""),
-            },
-        )
+        try:
+            response = requests.post(
+                settings.SELF_HOSTED_ENDPOINT,
+                files={"audio": audio},
+                data={
+                    # change this model to get faster results see: https://github.com/coronasafe/care-whisper
+                    "model": "small",
+                    "language": self.language_code.replace("-IN", ""),
+                },
+            )
 
-        if not response.ok:
-            print("Failed to recognize speech with self hosted engine")
-            return ""
-        response = response.json()
-        return response["data"]["transcription"].strip()
+            if not response.ok:
+                print("Failed to recognize speech with self hosted engine")
+                return ""
+            response = response.json()
+            return response["data"]["transcription"].strip()
+        except Exception as e:
+            raise ValueError(f"Failed to recognize speech with self hosted engine: {e}")
 
 
 engines = {
@@ -88,8 +97,7 @@ def speech_to_text(engine_id, audio, language_code):
         engine = engine_class(api_key, language_code)
         recognized_text = engine.recognize(audio)
         if not recognized_text:
-            raise ValueError("Failed to detect any speech in provided audio")
+            raise ValueError("Speech-to-text: Failed to recognize speech")
         return recognized_text
     except Exception as e:
-        print(f"Failed to recognize speech with {engine_name} engine: {e}")
-        raise e
+        raise ValueError(f"Speech-to-text failed with {engine_name} engine: {e}")
