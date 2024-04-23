@@ -38,7 +38,7 @@ google-cloud-texttospeech = "==2.14.2"
 google-cloud-translate = "==3.12.0"
 googleapis-common-protos = "==1.60.0"
 nltk = "==3.8.1"
-gunicorn = "==21.2.0"
+gunicorn = "==22.0.0"
 psycopg = {extras = ["c"], version = "==3.1.17"}
 sentry-sdk = "==1.30.0"
 
