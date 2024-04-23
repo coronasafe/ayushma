@@ -33,7 +33,7 @@ anyio = "<4.0.0" # Do not update: anyio<4.0 is REQUIRED by langchain
 google-api-core = "==2.11.1"
 google-auth = "==2.23.4"
 google-cloud-core = "==2.3.3"
-google-cloud-speech = "==2.21.0"
+google-cloud-speech = "==2.26.0"
 google-cloud-texttospeech = "==2.14.2"
 google-cloud-translate = "==3.12.0"
 googleapis-common-protos = "==1.60.0"
