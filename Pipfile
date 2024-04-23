@@ -27,7 +27,7 @@ openai = "==1.2.4"
 pinecone-client = "==2.2.4"
 pypdf2 = "==3.0.1"
 tiktoken = "==0.5.2"
-langchain = "==0.0.352"
+langchain = "==0.1.0"
 langchain-experimental = "==0.0.40"
 anyio = "<4.0.0" # Do not update: anyio<4.0 is REQUIRED by langchain
 google-api-core = "==2.11.1"
